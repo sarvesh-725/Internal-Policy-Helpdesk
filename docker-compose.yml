@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nodeswarm}
+      POSTGRES_USER: ${POSTGRES_USER:-nodeswarm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nodeswarm_dev_only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nodeswarm -d nodeswarm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.14.1
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin_dev_only
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_NAME: ${APP_NAME:-Dynamic Enterprise Support Swarm}
+      API_V1_PREFIX: ${API_V1_PREFIX:-/api/v1}
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://nodeswarm_app:nodeswarm_app_dev_only@postgres:5432/nodeswarm}
+      DATABASE_MIGRATION_URL: ${DATABASE_MIGRATION_URL:-postgresql+psycopg://nodeswarm:nodeswarm_dev_only@postgres:5432/nodeswarm}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-policy_chunks}
+      POLICY_KNOWLEDGE_DIR: /app/knowledge
+      GEMINI_EMBEDDING_MODEL: ${GEMINI_EMBEDDING_MODEL:-gemini-embedding-001}
+      POLICY_CHUNK_SIZE: ${POLICY_CHUNK_SIZE:-1400}
+      POLICY_CHUNK_OVERLAP: ${POLICY_CHUNK_OVERLAP:-160}
+      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:-http://keycloak:8080/realms/nodeswarm}
+      KEYCLOAK_AUDIENCE: ${KEYCLOAK_AUDIENCE:-nodeswarm-api}
+      KEYCLOAK_JWKS_URL: ${KEYCLOAK_JWKS_URL:-http://keycloak:8080/realms/nodeswarm/protocol/openid-connect/certs}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      LLM_PROVIDER: ${LLM_PROVIDER:-gemini}
+      LLM_ROUTER_MODEL: ${LLM_ROUTER_MODEL:-gemini-2.5-flash}
+      LLM_SYNTHESIS_MODEL: ${LLM_SYNTHESIS_MODEL:-gemini-2.5-pro}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:5173}
+      LANGSMITH_TRACING: ${LANGSMITH_TRACING:-false}
+      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY:-}
+      LANGSMITH_PROJECT: ${LANGSMITH_PROJECT:-nodeswarm}
+      PRESIDIO_ENABLED: ${PRESIDIO_ENABLED:-true}
+      INPUT_MAX_CHARACTERS: ${INPUT_MAX_CHARACTERS:-8000}
+      GEMINI_TIMEOUT_SECONDS: ${GEMINI_TIMEOUT_SECONDS:-30}
+      MODEL_MAX_OUTPUT_TOKENS: ${MODEL_MAX_OUTPUT_TOKENS:-1200}
+      RETRIEVAL_RETRY_ATTEMPTS: ${RETRIEVAL_RETRY_ATTEMPTS:-2}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      MAX_DOMAIN_HANDOFFS: ${MAX_DOMAIN_HANDOFFS:-2}
+      MAX_TOTAL_STEPS: ${MAX_TOTAL_STEPS:-8}
+      LANGGRAPH_STRICT_MSGPACK: "true"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    volumes:
+      - ./knowledge:/app/knowledge:ro
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api/v1
+      VITE_KEYCLOAK_URL: http://localhost:8080
+      VITE_KEYCLOAK_REALM: nodeswarm
+      VITE_KEYCLOAK_CLIENT_ID: nodeswarm-web
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  qdrant_data:

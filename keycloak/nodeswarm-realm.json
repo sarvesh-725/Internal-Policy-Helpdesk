@@ -1,0 +1,96 @@
+{
+  "realm": "nodeswarm",
+  "enabled": true,
+  "displayName": "Dynamic Enterprise Support Swarm",
+  "roles": {
+    "realm": [
+      { "name": "employee" },
+      { "name": "manager" },
+      { "name": "hr_specialist" },
+      { "name": "it_specialist" },
+      { "name": "operations_specialist" },
+      { "name": "policy_admin" },
+      { "name": "system_admin" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "nodeswarm-web",
+      "name": "NodeSwarm Web",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "protocolMappers": [
+        {
+          "name": "nodeswarm-api audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "nodeswarm-api",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "region",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "region",
+            "claim.name": "region",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "nodeswarm-api",
+      "name": "NodeSwarm API",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "demo.employee",
+      "enabled": true,
+      "emailVerified": true,
+      "attributes": { "region": ["US"] },
+      "realmRoles": ["employee"],
+      "credentials": [{ "type": "password", "value": "demo_employee_only", "temporary": false }]
+    },
+    {
+      "username": "demo.hr",
+      "enabled": true,
+      "emailVerified": true,
+      "attributes": { "region": ["US"] },
+      "realmRoles": ["hr_specialist"],
+      "credentials": [{ "type": "password", "value": "demo_hr_only", "temporary": false }]
+    },
+    {
+      "username": "demo.it",
+      "enabled": true,
+      "emailVerified": true,
+      "attributes": { "region": ["US"] },
+      "realmRoles": ["it_specialist"],
+      "credentials": [{ "type": "password", "value": "demo_it_only", "temporary": false }]
+    },
+    {
+      "username": "demo.operations",
+      "enabled": true,
+      "emailVerified": true,
+      "attributes": { "region": ["US"] },
+      "realmRoles": ["operations_specialist"],
+      "credentials": [{ "type": "password", "value": "demo_operations_only", "temporary": false }]
+    }
+  ]
+}
