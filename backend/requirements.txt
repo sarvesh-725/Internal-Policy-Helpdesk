@@ -4,7 +4,6 @@ pydantic-settings==2.10.1
 SQLAlchemy==2.0.43
 psycopg[binary]==3.2.9
 psycopg-pool==3.2.6
-alembic==1.16.5
 PyJWT[crypto]==2.10.1
 httpx==0.28.1
 qdrant-client==1.15.1

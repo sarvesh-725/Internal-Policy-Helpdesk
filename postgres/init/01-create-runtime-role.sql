@@ -1,4 +1,3 @@
--- Local demonstration only. Migrations run as the schema owner; FastAPI runs as this restricted role.
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nodeswarm_app') THEN

@@ -16,6 +16,3 @@ Docker Compose defines PostgreSQL for transactional data and policy metadata, Qd
 
 Before a request can enter future graph or Gemini flows, the backend guard redacts identifiers, blocks secrets and restricted identifiers, and escalates sensitive employment, medical, and prompt-injection signals. Gemini prompt builders accept only the guard-approved request representation and authorized retrieval evidence; raw browser input, credentials, JWTs, and audit data are never prompt material.
 
-See [architecture.md](architecture.md) for the system design and [phases.md](phases.md) for the delivery plan.
-
-The core operational documents are the [threat model](docs/threat-model.md), [API contract](docs/api-contract.md), [local runbook](docs/runbook.md), [observability guide](docs/observability.md), and [data-handling guide](docs/data-handling.md). The [implementation map](docs/implementation-map.md) ties the architecture to code, and [quality status](docs/quality-status.md) records the deliberately deferred evaluation work.
