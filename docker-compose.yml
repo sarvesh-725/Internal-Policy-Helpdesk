@@ -40,7 +40,7 @@ services:
       context: ./backend
     environment:
       APP_ENV: ${APP_ENV:-development}
-      APP_NAME: ${APP_NAME:-Dynamic Enterprise Support Swarm}
+      APP_NAME: ${APP_NAME:-Internal-Policy-Helpdesk}
       API_V1_PREFIX: ${API_V1_PREFIX:-/api/v1}
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://nodeswarm_app:nodeswarm_app_dev_only@postgres:5432/nodeswarm}
       DATABASE_MIGRATION_URL: ${DATABASE_MIGRATION_URL:-postgresql+psycopg://nodeswarm:nodeswarm_dev_only@postgres:5432/nodeswarm}

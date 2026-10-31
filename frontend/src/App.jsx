@@ -11,7 +11,7 @@ export default function App() {
   const [view, setView] = useState("chat");
   useEffect(() => { initializeAuth().then(async (keycloak) => { if (keycloak.authenticated) setUser(await api("/auth/me")); setReady(true); }).catch(() => setReady(true)); }, []);
   if (!ready) return <main className="shell"><p>Loading secure workspace…</p></main>;
-  if (!user) return <main className="shell"><section className="hero"><p className="eyebrow">Fictional policy assistant</p><h1>Dynamic Enterprise Support Swarm</h1><p>Secure policy navigation for HR, IT Support, and Operations.</p><button onClick={signIn}>Sign in</button></section></main>;
+  if (!user) return <main className="shell"><section className="hero"><p className="eyebrow">Fictional policy assistant</p><h1>Internal-Policy-Helpdesk</h1><p>Secure policy navigation for HR, IT Support, and Operations.</p><button onClick={signIn}>Sign in</button></section></main>;
   const roles = user.roles || [];
   const isSpecialist = roles.some((role) => role.endsWith("_specialist"));
   const isAdmin = roles.includes("policy_admin") || roles.includes("system_admin");

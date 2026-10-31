@@ -1,7 +1,7 @@
 {
   "realm": "nodeswarm",
   "enabled": true,
-  "displayName": "Dynamic Enterprise Support Swarm",
+  "displayName": "Internal-Policy-Helpdesk",
   "roles": {
     "realm": [
       { "name": "employee" },
